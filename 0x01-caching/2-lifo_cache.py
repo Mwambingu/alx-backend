@@ -1,45 +1,35 @@
 #!/usr/bin/env python3
+"""Last-In First-Out caching module.
 """
-Contains a class that represents
-a LIFO Caching system."""
+from collections import OrderedDict
 
 from base_caching import BaseCaching
-from collections import OrderedDict
 
 
 class LIFOCache(BaseCaching):
-    """ A class that represents a LIFO
-    caching system
+    """Represents an object that allows storing and
+    retrieving items from a dictionary with a LIFO
+    removal mechanism when the limit is reached.
     """
-
     def __init__(self):
-        """Initializes an instance of the LIFOCache"""
+        """Initializes the cache.
+        """
         super().__init__()
         self.cache_data = OrderedDict()
 
     def put(self, key, item):
-        """Assigns key-values to the dictionary
-        cache_data"""
-        cache_size = len(self.cache_data)
-        item_keys = list(self.cache_data.keys())
-
-        if key and item:
-            if cache_size == BaseCaching.MAX_ITEMS and key not in item_keys:
-                last_key, last_item = self.cache_data.popitem()
-                print("DISCARD: {}".format(last_key))
-                self.cache_data[key] = item
-
-            elif key in item_keys:
-                self.cache_data.pop(key)
-                self.cache_data[key] = item
-
-            else:
-                self.cache_data[key] = item
+        """Adds an item in the cache.
+        """
+        if key is None or item is None:
+            return
+        if key not in self.cache_data:
+            if len(self.cache_data) + 1 > BaseCaching.MAX_ITEMS:
+                last_key, _ = self.cache_data.popitem(True)
+                print("DISCARD:", last_key)
+        self.cache_data[key] = item
+        self.cache_data.move_to_end(key, last=True)
 
     def get(self, key):
-        """ Retrieves value from dictionary using
-        given key.
-        Returns None if key or value doesn't exist"""
-        if not key or not self.cache_data[key]:
-            return None
-        return self.cache_data[key]
+        """Retrieves an item by key.
+        """
+        return self.cache_data.get(key, None)
