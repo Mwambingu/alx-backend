@@ -1,43 +1,33 @@
 #!/usr/bin/env python3
+"""First-In First-Out caching module.
 """
-Contains a class that represents
-a FIFO Caching system.
-"""
+from collections import OrderedDict
+
 from base_caching import BaseCaching
 
 
 class FIFOCache(BaseCaching):
-    """ A class that represents a FIFO
-    caching system
+    """Represents an object that allows storing and
+    retrieving items from a dictionary with a FIFO
+    removal mechanism when the limit is reached.
     """
-
     def __init__(self):
-        """Initializes an instance of the FIFOCache"""
+        """Initializes the cache.
+        """
         super().__init__()
+        self.cache_data = OrderedDict()
 
     def put(self, key, item):
-        """Assigns key-values to the dictionary
-        cache_data"""
-        cache_size = len(self.cache_data)
-        item_keys = list(self.cache_data.keys())
-
-        if key and item:
-            if cache_size == BaseCaching.MAX_ITEMS and key not in item_keys:
-                first_item = item_keys[0]
-                self.cache_data.pop(first_item)
-                print(f"DISCARD: {first_item}")
-                self.cache_data[key] = item
-            else:
-                self.cache_data[key] = item
+        """Adds an item in the cache.
+        """
+        if key is None or item is None:
+            return
+        self.cache_data[key] = item
+        if len(self.cache_data) > BaseCaching.MAX_ITEMS:
+            first_key, _ = self.cache_data.popitem(False)
+            print("DISCARD:", first_key)
 
     def get(self, key):
+        """Retrieves an item by key.
         """
-        Retrieves value from dictionary using
-        given key.
-        Returns None if key or value doesn't exist
-        """
-        if not key:
-            return None
-        if not self.cache_data[key]:
-            return None
-        return self.cache_data[key]
+        return self.cache_data.get(key, None)
